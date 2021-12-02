@@ -29,10 +29,24 @@ while(True):
 
     # finding face in any picture or video
     # scaleFactor is for how much accuracy to find the face
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=5)
+    # minNeighbor is face-detection minimum area
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=4)
 
     for (x, y, w, h) in faces:
-        print(x,y,w,h)
+        # print coordinat
+        print(x, y, w, h)
+
+        # save gray picture with roi(region of interest)
+        roi_gray = gray[y:y+h, x:x+w]
+        img_item = "my_image.png"
+        cv2.imwrite(img_item, roi_gray)
+
+        # creating ractangle around the face of video
+        color = (0, 255, 0) # BGR
+        stroke = 2
+        end_cord_x = x + w
+        end_cord_y = y + h
+        cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
 
     # display the video frame
     cv2.imshow('frame', frame)
