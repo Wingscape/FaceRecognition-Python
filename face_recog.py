@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-std_dimensions = {
+STD_DIMENSIONS = {
     "480p": (640, 480),
     "720p": (1280, 720),
     "1080p": (1920, 1080)
@@ -17,7 +17,7 @@ face_cascade = cv2.CascadeClassifier('Cascades/data/haarcascade_frontalface_alt2
 cap = cv2.VideoCapture(0)
 
 # change the resolution
-width, height = std_dimensions["480p"]
+width, height = STD_DIMENSIONS["480p"]
 change_res(cap, width, height)
 
 while(True):
@@ -57,4 +57,3 @@ while(True):
 
 cap.release()
 cv2.destroyAllWindows()
-    
