@@ -11,13 +11,28 @@ def change_res(cap, width, height):
     cap.set(3, width)
     cap.set(4, height)
 
+face_cascade = cv2.CascadeClassifier('Cascades/data/haarcascade_frontalface_alt2.xml')
+
 # initialize video capture
 cap = cv2.VideoCapture(0)
-change_res(cap, std_dimensions["480p"])
+
+# change the resolution
+width, height = std_dimensions["480p"]
+change_res(cap, width, height)
 
 while(True):
     # reading frame by frame, cause of the loop as well
     ret, frame = cap.read()
+
+    # change it into gray picture
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # finding face in any picture or video
+    # scaleFactor is for how much accuracy to find the face
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=5)
+
+    for (x, y, w, h) in faces:
+        print(x,y,w,h)
 
     # display the video frame
     cv2.imshow('frame', frame)
