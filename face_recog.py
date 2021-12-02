@@ -30,7 +30,7 @@ while(True):
     # finding face in any picture or video
     # scaleFactor is for how much accuracy to find the face
     # minNeighbor is face-detection minimum area
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=5)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=3)
 
     for (x, y, w, h) in faces:
         # print coordinat
