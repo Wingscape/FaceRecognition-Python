@@ -1,0 +1,5 @@
+How to improve recognizer:
+1. Get a better pictures
+2. Get much more pictures
+3. Same size of a pictures from one to another
+4. consider some deep learning library to handle recognition
