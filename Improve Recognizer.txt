@@ -3,3 +3,11 @@ How to improve recognizer:
 2. Get much more pictures
 3. Same size of a pictures from one to another
 4. consider some deep learning library to handle recognition
+
+Get great pictures from recognizer:
+1. There is a limit distance for face scanning from camera
+2. The resolution has to be consistent(in this case, 720p)
+3. Do not use some rectangle or text
+4. We could get pictures that the size is almost the same, will be increasing chance get accurate recognize
+5. minSize, maxSize
+6. Get the name

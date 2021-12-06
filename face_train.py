@@ -5,6 +5,17 @@ import pickle
 import numpy as np
 from PIL import Image
 
+def change_res(cap, width, height):
+    cap.set(3, width)
+    cap.set(4, height)
+
+def rescale_frame(frame, percent=100):
+    scale_percent = percent
+    width = int(frame.shape[1] * scale_percent / 100)
+    height = int(frame.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    return cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+
 # get the current directory of the file
 # os.path.dirname is used to get the directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,56 +24,114 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 image_dir = os.path.join(BASE_DIR, "Images")
 
 face_cascade = cv2.CascadeClassifier('Cascades/data/haarcascade_frontalface_alt2.xml')
-recognizer = cv2.face.LBPHFaceRecognizer_create()
-current_id = 0
-label_ids = {}
-y_labels = []
-x_train = []
 
-# separate file so that only picture that get taken
-# root is top-most directory in a hierarchy
-for root, dirs, files in os.walk(image_dir):
-    for file in files:
-        if file.endswith("png") or file.endswith("jpg") or file.endswith("jpeg") or file.endswith("jfif"):
-            # join the root directory of this file with the file itself
-            path = os.path.join(root, file)
+inp = input("Do you want to get pictures of yourself? (y/n): ")
 
-            # make a label from the foldername of the file
-            # basename is to get the folder of the path
-            label = os.path.basename(root).replace(" ", "-").lower()
-            # print(label, path)
+if inp == 'y' or inp == 'Y':
+    STD_DIMENSIONS = {
+        "480p": (640, 480),
+        "720p": (1280, 720),
+        "1080p": (1920, 1080)
+    }
 
-            if not label in label_ids:
-                label_ids[label] = current_id
-                current_id += 1
+    inp_name = input("Please insert your name: ")
 
-            id_ = label_ids[label]
-            print(label_ids)
+    path_name = os.path.join(image_dir, inp_name.replace(" ", "-").lower())
 
-            # pillow is python image library
-            # open image of the directory and convert it into grayscale
-            pil_image = Image.open(path).convert("L")
+    for dir in next(os.walk(image_dir))[1]:
+        name = os.path.basename(path_name)
 
-            # resize the image
-            size = (550, 550)
-            final_image = pil_image.resize(size, Image.ANTIALIAS)
+        if dir == name:
+            os.rmdir(path_name)
 
-            # change image into NUMPY array
-            image_array = np.array(final_image, "uint8")
-            # print(image_array)
+    os.mkdir(path_name)
 
-            faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.5, minNeighbors=3)
+    cap = cv2.VideoCapture(0)
+    width, height = STD_DIMENSIONS["720p"]
+    change_res(cap, width, height)
 
-            for (x, y, w, h) in faces:
-                roi = image_array[y:y+h, x:x+w]
+    while(True):
+        ret, frame = cap.read()
+        frame = rescale_frame(frame)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-                x_train.append(roi)
-                y_labels.append(id_)
+        # get laggy when scaleFactor is decrease
+        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=4, minSize=[300, 300])
 
-# create lables.pickle file and send label_ids into a lables.pickle file
-with open("labels.pickle", 'wb') as f:
-    pickle.dump(label_ids, f)
+        for (x, y, w, h) in faces:
+            roi_color = frame[y:y+h, x:x+w]
+            img_item = "1.png"
+            cv2.imwrite(os.path.join(path_name, img_item), roi_color)
 
-# training the recognizer
-recognizer.train(x_train, np.array(y_labels))
-recognizer.save("trainner.yml")
+            # creating ractangle around the face of camera
+            color = (0, 255, 0) # BGR
+            stroke = 2
+            end_cord_x = x + w
+            end_cord_y = y + h
+            cv2.rectangle(frame, (x, y), (end_cord_x, end_cord_y), color, stroke)
+
+        # display the video frame
+        cv2.imshow('Analyzing face', frame)
+
+        # stop the program when 'q' is pressed
+        if cv2.waitKey(20) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+elif inp == 'n' or inp == 'N':
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+    current_id = 0
+    label_ids = {}
+    y_labels = []
+    x_train = []
+
+    # separate file so that only picture that get taken
+    # root is top-most directory in a hierarchy
+    for root, dirs, files in os.walk(image_dir):
+        for file in files:
+            if file.endswith("png") or file.endswith("jpg") or file.endswith("jpeg") or file.endswith("jfif"):
+                # join the root directory of this file with the file itself
+                path = os.path.join(root, file)
+
+                # make a label from the foldername of the file
+                # basename is to get the folder of the path
+                label = os.path.basename(root).replace(" ", "-").lower()
+                # print(label, path)
+
+                if not label in label_ids:
+                    label_ids[label] = current_id
+                    current_id += 1
+
+                id_ = label_ids[label]
+                print(label_ids)
+
+                # pillow is python image library
+                # open image of the directory and convert it into grayscale
+                pil_image = Image.open(path).convert("L")
+
+                # resize the image
+                # size = (550, 550)
+                # final_image = pil_image.resize(size, Image.ANTIALIAS)
+
+                # change image into NUMPY array
+                image_array = np.array(pil_image, "uint8")
+                # print(image_array)
+
+                faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.5, minNeighbors=3)
+
+                for (x, y, w, h) in faces:
+                    roi = image_array[y:y+h, x:x+w]
+
+                    x_train.append(roi)
+                    y_labels.append(id_)
+
+    # create lables.pickle file and send label_ids into a lables.pickle file
+    with open("labels.pickle", 'wb') as f:
+        pickle.dump(label_ids, f)
+
+    # training the recognizer
+    recognizer.train(x_train, np.array(y_labels))
+    recognizer.save("trainner.yml")
+else:
+    print("The input is incorrect! Try again later")
