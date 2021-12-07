@@ -9,5 +9,6 @@ Get great pictures from recognizer:
 2. The resolution has to be consistent(in this case, 720p)
 3. Do not use some rectangle or text
 4. We could get pictures that the size is almost the same, will be increasing chance get accurate recognize
-5. minSize, maxSize
+5. minSize, maxSize, scaleFactor, minNeighbors, Confidence, haarcascade?, resize?
 6. Get the name
+7. Gray and Numpy is same?

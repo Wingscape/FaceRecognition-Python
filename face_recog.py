@@ -32,6 +32,7 @@ with open("labels.pickle", 'rb') as f:
     labels = {v:k for k, v in og_labels.items()}
 
 # initialize video capture
+# if want to change camera, set to 1
 cap = cv2.VideoCapture(0)
 
 # change the resolution
@@ -43,15 +44,15 @@ while(True):
     ret, frame = cap.read()
 
     # rescale frame
-    frame = rescale_frame(frame)
+    frame = rescale_frame(frame, percent=60)
 
     # change it into gray picture
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # finding face by camera
-    # scaleFactor will detecting the face in what scale image factor is
-    # minNeighbor, higher value results in less detection but with higher quality
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=3)
+    # scaleFactor will detecting the face in what scale image factor is (mendeteksi besar-kecil image sesuai scalefactor)
+    # minNeighbor, higher value results in less detection but with higher quality (kualitas jumlah face yang dideteksi)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=3)
 
     for (x, y, w, h) in faces:
         # print coordinat
@@ -61,14 +62,15 @@ while(True):
         roi_color = frame[y:y+h, x:x+w]
         id_, conf = recognizer.predict(roi_gray)
 
-        if conf >= 97 and conf <= 100:
+        if conf >= 50 and conf <= 100:
             print(id_)
             print(labels[id_])
+            print("conf: " + str(conf))
             font = cv2.FONT_HERSHEY_SIMPLEX
             name = labels[id_]
             colors = (255, 255, 255)
             stroke = 2
-            cv2.putText(frame, name, (x, y), font, 0.5, colors, stroke, cv2.LINE_AA)
+            cv2.putText(frame, name, (x, y), font, 1, colors, stroke, cv2.LINE_AA)
 
         # save gray picture with roi(region of interest)
         img_item = "image_identify.png"

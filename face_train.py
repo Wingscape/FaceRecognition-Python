@@ -1,6 +1,7 @@
 import os
 from typing import final
 import cv2
+import shutil
 import pickle
 import numpy as np
 from PIL import Image
@@ -34,14 +35,25 @@ if inp == 'y' or inp == 'Y':
         "1080p": (1920, 1080)
     }
 
-    inp_name = input("Please insert your name: ")
+    amount_pic = 0
 
+    inp_name = input("Please insert your name: ")
     path_name = os.path.join(image_dir, inp_name.replace(" ", "-").lower())
 
+    # BUG: if there is symlink in directory or file
     for dir in next(os.walk(image_dir))[1]:
         name = os.path.basename(path_name)
 
         if dir == name:
+            for file in next(os.walk(path_name))[2]:
+                file_path = os.path.join(path_name, file)
+
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                
+                if os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+
             os.rmdir(path_name)
 
     os.mkdir(path_name)
@@ -50,7 +62,7 @@ if inp == 'y' or inp == 'Y':
     width, height = STD_DIMENSIONS["720p"]
     change_res(cap, width, height)
 
-    while(True):
+    while(True):     
         ret, frame = cap.read()
         frame = rescale_frame(frame)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -59,8 +71,10 @@ if inp == 'y' or inp == 'Y':
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=4, minSize=[300, 300])
 
         for (x, y, w, h) in faces:
+            amount_pic += 1
+
             roi_color = frame[y:y+h, x:x+w]
-            img_item = "1.png"
+            img_item = str(amount_pic) + ".png"
             cv2.imwrite(os.path.join(path_name, img_item), roi_color)
 
             # creating ractangle around the face of camera
@@ -72,6 +86,9 @@ if inp == 'y' or inp == 'Y':
 
         # display the video frame
         cv2.imshow('Analyzing face', frame)
+
+        if amount_pic == 70:
+            break
 
         # stop the program when 'q' is pressed
         if cv2.waitKey(20) & 0xFF == ord('q'):
@@ -118,7 +135,7 @@ elif inp == 'n' or inp == 'N':
                 image_array = np.array(pil_image, "uint8")
                 # print(image_array)
 
-                faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.5, minNeighbors=3)
+                faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.05, minNeighbors=4, minSize=[300, 300])
 
                 for (x, y, w, h) in faces:
                     roi = image_array[y:y+h, x:x+w]
