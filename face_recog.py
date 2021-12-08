@@ -33,6 +33,7 @@ with open("labels.pickle", 'rb') as f:
 
 # initialize video capture
 # if want to change camera, set to 1
+# using cv2.CAP_DSHOW for input external camera
 cap = cv2.VideoCapture(0)
 
 # change the resolution
@@ -62,7 +63,7 @@ while(True):
         roi_color = frame[y:y+h, x:x+w]
         id_, conf = recognizer.predict(roi_gray)
 
-        if conf >= 50 and conf <= 100:
+        if conf >= 90 and conf <= 100:
             print(id_)
             print(labels[id_])
             print("conf: " + str(conf))

@@ -58,7 +58,9 @@ if inp == 'y' or inp == 'Y':
 
     os.mkdir(path_name)
 
+    # using cv2.CAP_DSHOW for input external camera
     cap = cv2.VideoCapture(0)
+
     width, height = STD_DIMENSIONS["720p"]
     change_res(cap, width, height)
 
@@ -68,7 +70,7 @@ if inp == 'y' or inp == 'Y':
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # get laggy when scaleFactor is decrease
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=4, minSize=[300, 300])
+        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=4)
 
         for (x, y, w, h) in faces:
             amount_pic += 1
@@ -87,7 +89,7 @@ if inp == 'y' or inp == 'Y':
         # display the video frame
         cv2.imshow('Analyzing face', frame)
 
-        if amount_pic == 70:
+        if amount_pic == 100:
             break
 
         # stop the program when 'q' is pressed
@@ -135,7 +137,7 @@ elif inp == 'n' or inp == 'N':
                 image_array = np.array(pil_image, "uint8")
                 # print(image_array)
 
-                faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.05, minNeighbors=4, minSize=[300, 300])
+                faces = face_cascade.detectMultiScale(image_array, scaleFactor=1.05, minNeighbors=4)
 
                 for (x, y, w, h) in faces:
                     roi = image_array[y:y+h, x:x+w]
