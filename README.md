@@ -1,5 +1,6 @@
 # FaceRecognition-Python
 
-Implement face recognition and also identify employee for their absen
+Simple facial recognition with haar cascade algorithm taking the accuracy up to 90%.
+Using the support of OpenCV library.
 
-You can referring to the trello link where the plan of this project goes to there https://trello.com/b/viNBYNJ1/face-recogntion
+For privacy concern, i removed the person images in dataset that remains only me. However the model still can recognize for the person that was gone in dataset.
